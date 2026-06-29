@@ -1,23 +1,14 @@
 # CogChat
 
-**Knowledge Graph-Augmented Conversational AI with a Heterogeneous Graph Transformer for Cognitive Grounding in Design Generation** — UIST '26 project page.
+**Knowledge Graph-Augmented Conversational AI with a Heterogeneous Graph Transformer for Cognitive Grounding in Design Generation**
+
+UIST '26 &middot; Jiin Choi, Kyung Hoon Hyun &middot; Design Informatics Lab, Hanyang University
+
+![CogChat overview](assets/img/fig_1.png)
 
 CogChat grounds an LLM chat assistant in a personal **heterogeneous knowledge graph** built from each designer's input, and uses a **Heterogeneous Graph Transformer (HGT)** to select the structurally relevant nodes for every response — and to generate *intentional* and *exploratory* probing questions.
 
-## Project page
-
-The site is a single static file: [`index.html`](index.html). Figures live in [`assets/img/`](assets/img/).
-
-### Run locally
-
-```bash
-python -m http.server 8000
-# then open http://localhost:8000
-```
-
-### GitHub Pages
-
-Enable Pages on the `main` branch (root). A `.nojekyll` file is included so the `assets/` directory is served as-is.
+LLM chat systems keep context through *recency*: the last few turns in a sliding window. In design conversation this breaks down — relational meaning decays between turns, identical words mean different things to different designers, and the conversation loops instead of deepening. CogChat preserves the relational structure of how a designer thinks, rather than what they said most recently.
 
 ## Contents
 
