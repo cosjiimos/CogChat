@@ -439,18 +439,73 @@
         <b>Figure 4.</b> Per-item survey responses across NASA-TLX, intent expression, satisfaction, output quality, and agency &amp; ownership. CogChat (purple) leads consistently, with the sharpest gaps on intent expression and outcome quality.
       </figcaption>
     </figure>
-    <figure>
-      <img src="assets/img/fig_5.png" alt="Eight bar charts comparing Baseline, KG-only, and CogChat on CUQ, BERTScore, Token IoU, probing success rate, task completion time, turn count, and feedback counts." class="w-full block rounded-xl border border-gray-200 bg-white zoomable" />
-      <figcaption class="mt-2 text-gray-500 text-[11px] leading-relaxed text-center">
-        <b>Figure 5.</b> Per-metric study outcomes. CogChat leads on CUQ, semantic similarity, token-level IoU, and probing success rate, while requiring fewer turns, less time, and drawing far less negative feedback. (* p&lt;.05, ** p&lt;.01, *** p&lt;.001)
-      </figcaption>
-    </figure>
+    <div class="grid md:grid-cols-12 gap-6 items-center">
+      <figure class="md:col-span-7">
+        <img src="assets/img/fig_5.png" alt="Eight bar charts comparing Baseline, KG-only, and CogChat on CUQ, BERTScore, Token IoU, probing success rate, task completion time, turn count, and feedback counts." class="w-full block rounded-xl border border-gray-200 bg-white zoomable" />
+        <figcaption class="mt-2 text-gray-500 text-[11px] leading-relaxed text-center">
+          <b>Figure 5.</b> Per-metric study outcomes across the three conditions. (* p&lt;.05, ** p&lt;.01, *** p&lt;.001)
+        </figcaption>
+      </figure>
+
+      <div class="md:col-span-5">
+        <h3 class="text-[12px] uppercase tracking-wider text-accent-700 font-semibold mb-1">Reading the eight panels</h3>
+        <p class="text-[13px] text-gray-600 leading-relaxed mb-4">CogChat (<span class="text-accent-700 font-medium">left bar</span>) leads on every quality metric while costing the designer less.</p>
+        <dl class="space-y-2.5 text-[13px]">
+          <div class="flex gap-2.5">
+            <dt class="font-mono text-[11px] text-gray-400 pt-0.5 min-w-[58px]">a&ndash;d</dt>
+            <dd class="text-gray-700 leading-snug"><b class="text-gray-900">Higher is better.</b> CUQ usability, per-turn semantic similarity (BERTScore), token-level IoU, and probing success rate &mdash; all peak for CogChat.</dd>
+          </div>
+          <div class="flex gap-2.5">
+            <dt class="font-mono text-[11px] text-gray-400 pt-0.5 min-w-[58px]">e&ndash;f</dt>
+            <dd class="text-gray-700 leading-snug"><b class="text-gray-900">Lower is better.</b> Task completion time and turn count drop sharply &mdash; 5.1 turns vs. 9.4 for Baseline.</dd>
+          </div>
+          <div class="flex gap-2.5">
+            <dt class="font-mono text-[11px] text-gray-400 pt-0.5 min-w-[58px]">g</dt>
+            <dd class="text-gray-700 leading-snug"><b class="text-gray-900">Negative feedback.</b> 0.22 dislikes/session vs. 3.67 for Baseline &mdash; context loss, not quality, drove dissatisfaction.</dd>
+          </div>
+          <div class="flex gap-2.5">
+            <dt class="font-mono text-[11px] text-gray-400 pt-0.5 min-w-[58px]">h</dt>
+            <dd class="text-gray-700 leading-snug"><b class="text-gray-900">Positive feedback.</b> Highest for CogChat, confirming the gains land with designers.</dd>
+          </div>
+        </dl>
+      </div>
+    </div>
     <figure>
       <img src="assets/img/fig_6.png" alt="Timeline of all three conditions showing user messages, system responses, image generations, probing questions, and answered/presented probing success rates per turn." class="w-full block rounded-xl border border-gray-200 bg-white zoomable" />
       <figcaption class="mt-2 text-gray-500 text-[11px] leading-relaxed text-center">
         <b>Figure 6.</b> Full session timelines per condition. CogChat reaches a finished design in fewer turns with a high answered/presented probing ratio, while Baseline loops and restarts.
       </figcaption>
     </figure>
+
+    <!-- Interview insights -->
+    <div class="mt-14">
+      <h3 class="text-xl md:text-2xl font-bold text-gray-900 mb-1">What the designers said</h3>
+      <p class="text-gray-500 text-[14px] mb-7 max-w-2xl">Semi-structured interviews surfaced <em>why</em> the numbers moved &mdash; the relief of not re-explaining, and the surprise of being understood on their own terms.</p>
+
+      <div class="grid md:grid-cols-3 gap-5">
+        <blockquote class="bg-gray-50 border border-gray-200 rounded-2xl p-5">
+          <p class="text-[14px] text-gray-800 leading-relaxed mb-3">&ldquo;The intent was preserved throughout, and subsequent requests were reflected accurately &mdash; responses became more precise as the conversation went on.&rdquo;</p>
+          <footer class="text-[12px] text-accent-700 font-medium">P2 &amp; P5 &middot; on context retention</footer>
+        </blockquote>
+
+        <blockquote class="bg-gray-50 border border-gray-200 rounded-2xl p-5">
+          <p class="text-[14px] text-gray-800 leading-relaxed mb-3">It read &ldquo;water properties&rdquo; not as transparency but as gentle wave texture &mdash; &ldquo;actually better. I received design advice in reverse, through exploratory questions.&rdquo;</p>
+          <footer class="text-[12px] text-accent-700 font-medium">P8 &middot; on personalized interpretation</footer>
+        </blockquote>
+
+        <blockquote class="bg-gray-50 border border-gray-200 rounded-2xl p-5">
+          <p class="text-[14px] text-gray-800 leading-relaxed mb-3">&ldquo;I could see my own logic laid out.&rdquo; Double-clicking a word to inspect its connections made the system&rsquo;s understanding tangible.</p>
+          <footer class="text-[12px] text-accent-700 font-medium">P5 &middot; on entity inspection</footer>
+        </blockquote>
+      </div>
+
+      <!-- Closing takeaway -->
+      <div class="mt-7 bg-accent-50/60 border border-accent-200 rounded-2xl p-6 md:p-7">
+        <p class="text-[15px] md:text-[16px] text-gray-800 leading-relaxed">
+          The takeaway isn&rsquo;t that CogChat <em>remembers</em> more &mdash; Baseline already had the full history in its context window. It&rsquo;s that CogChat <b class="text-accent-700">organizes what it remembers</b>. The bottleneck in design conversation is not memory capacity but <b>context curation</b>: deciding which relations to foreground at each turn. Eight of nine designers called CogChat the deepest conversation &mdash; while still feeling the design was <em>theirs</em>.
+        </p>
+      </div>
+    </div>
   </section>
 
   <!-- ============================== CITATION ============================== -->
