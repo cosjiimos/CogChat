@@ -1,0 +1,535 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>CogChat &mdash; Knowledge Graph-Augmented Conversational AI for Design</title>
+  <meta name="description" content="CogChat grounds conversational AI in a personal heterogeneous knowledge graph, using a Heterogeneous Graph Transformer to retain relational context across turns in design conversation. UIST 2026." />
+  <meta property="og:title" content="CogChat: Knowledge Graph-Augmented Conversational AI for Cognitive Grounding in Design" />
+  <meta property="og:description" content="A real-time chat framework that grounds LLMs in how designers organize knowledge — not just what they said most recently. UIST 2026." />
+  <meta property="og:type" content="website" />
+  <meta property="og:url" content="https://cosjiimos.github.io/CogChat/" />
+  <meta property="og:image" content="https://cosjiimos.github.io/CogChat/assets/img/fig_2.png" />
+  <meta name="twitter:card" content="summary_large_image" />
+
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>%F0%9F%A7%A0</text></svg>" />
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500&family=Lora:ital,wght@0,500;0,600;1,500&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet" />
+
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['Inter', 'ui-sans-serif', 'system-ui', 'sans-serif'],
+            mono: ['JetBrains Mono', 'ui-monospace', 'monospace'],
+            serif: ['Lora', 'ui-serif', 'Georgia', 'serif'],
+          },
+          colors: {
+            /* Warm terracotta accent, sampled from the paper figures */
+            accent: {
+              50:  '#fbf4ee',
+              100: '#f6e6da',
+              200: '#edc9b1',
+              300: '#e0a784',
+              400: '#cf7f54',
+              500: '#bd6336',
+              600: '#a64f29',
+              700: '#883f23',
+              800: '#6e3420',
+              900: '#5a2d1d',
+            },
+            /* Soft sage/olive used for "discovered" graph nodes */
+            sage: {
+              100: '#e8efe2',
+              300: '#a9c096',
+              500: '#7c9b5e',
+              700: '#5a7642',
+            },
+          },
+        },
+      },
+    };
+  </script>
+
+  <style>
+    html { scroll-behavior: smooth; }
+    body { font-feature-settings: 'cv11', 'ss01', 'ss03'; }
+    .brand { letter-spacing: -0.01em; }
+    .section-anchor { scroll-margin-top: 4rem; }
+    code.inline { background: rgb(243 244 246); padding: 0.1em 0.35em; border-radius: 4px; font-size: 0.92em; }
+
+    /* Entity inspection: hovering an entity chip reveals its connections panel. */
+    .entity { cursor: help; border-bottom: 1.5px dashed rgb(207 127 84); transition: background 120ms ease; border-radius: 3px; }
+    .entity:hover, .entity.is-active { background: rgba(189, 99, 54, 0.12); }
+    .inspect-panel { transition: opacity 160ms ease, transform 160ms ease; }
+
+    /* Probing-question pills */
+    .probe-pill { cursor: pointer; transition: all 120ms ease; }
+    .probe-pill.is-chosen { background: #6e3420; border-color: #6e3420; color: white; }
+
+    /* Tabs */
+    .results-tab, button:not(:disabled) { cursor: pointer; }
+
+    /* Pipeline stage cards */
+    .stage-card { transition: border-color 140ms ease, box-shadow 140ms ease, transform 140ms ease; }
+    .stage-card:hover { border-color: rgb(207 127 84); box-shadow: 0 6px 22px -12px rgba(110,52,32,0.45); transform: translateY(-2px); }
+
+    /* Figure zoom-on-click cursor hint */
+    .zoomable { cursor: zoom-in; }
+  </style>
+</head>
+
+<body class="bg-white text-gray-800 antialiased">
+
+  <!-- ============================== STICKY NAV ============================== -->
+  <nav class="sticky top-0 z-50 bg-white/85 backdrop-blur border-b border-gray-100">
+    <div class="max-w-5xl mx-auto px-6 h-12 flex items-center justify-between text-[13px]">
+      <a href="#" class="font-bold tracking-tight text-gray-900 brand flex items-center gap-1.5">
+        <span class="text-accent-600">◑</span> CogChat
+      </a>
+      <div class="hidden md:flex items-center gap-5 text-gray-600">
+        <a href="#problem" class="hover:text-accent-700">Problem</a>
+        <a href="#interface" class="hover:text-accent-700">Interface</a>
+        <a href="#pipeline" class="hover:text-accent-700">Pipeline</a>
+        <a href="#probing" class="hover:text-accent-700">Probing</a>
+        <a href="#results" class="hover:text-accent-700">Results</a>
+        <a href="#study" class="hover:text-accent-700">User study</a>
+      </div>
+      <a href="https://github.com/cosjiimos/CogChat" target="_blank" rel="noopener" class="text-gray-500 hover:text-gray-900" aria-label="GitHub">
+        <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24"><path d="M12 .5C5.65.5.5 5.65.5 12c0 5.08 3.29 9.39 7.86 10.91.58.11.79-.25.79-.56v-1.97c-3.2.7-3.87-1.54-3.87-1.54-.52-1.32-1.27-1.67-1.27-1.67-1.04-.71.08-.7.08-.7 1.15.08 1.76 1.18 1.76 1.18 1.02 1.76 2.69 1.25 3.35.96.1-.74.4-1.25.72-1.54-2.55-.29-5.24-1.28-5.24-5.7 0-1.26.45-2.29 1.18-3.1-.12-.29-.51-1.46.11-3.04 0 0 .97-.31 3.18 1.18.92-.26 1.91-.39 2.89-.39.98 0 1.97.13 2.89.39 2.21-1.49 3.18-1.18 3.18-1.18.62 1.58.23 2.75.11 3.04.74.81 1.18 1.84 1.18 3.1 0 4.43-2.69 5.41-5.25 5.69.41.36.78 1.07.78 2.16v3.2c0 .31.21.68.79.56 4.57-1.52 7.86-5.83 7.86-10.91C23.5 5.65 18.35.5 12 .5z"/></svg>
+      </a>
+    </div>
+  </nav>
+
+  <!-- ============================== HERO ============================== -->
+  <header class="relative overflow-hidden">
+    <div class="absolute inset-0 -z-10 bg-gradient-to-b from-accent-50/70 via-white to-white"></div>
+
+    <div class="max-w-4xl mx-auto px-6 pt-12 pb-12 text-center">
+      <div class="inline-flex items-center px-3.5 py-1 rounded-full bg-accent-100 text-accent-800 text-[12px] font-semibold tracking-wider uppercase mb-6">
+        UIST 2026
+      </div>
+
+      <h1 class="font-sans text-4xl md:text-6xl font-extrabold tracking-tight text-gray-900 mb-3 flex items-center justify-center gap-3">
+        <span class="text-accent-600">◑</span><span class="brand">CogChat</span>
+      </h1>
+      <p class="text-lg md:text-2xl text-gray-700 mb-6 leading-tight max-w-2xl mx-auto" style="font-family:'Space Grotesk',ui-sans-serif,system-ui,sans-serif; font-weight:500; letter-spacing:-0.015em;">
+        Knowledge Graph-Augmented Conversational AI for Cognitive Grounding in Design
+      </p>
+
+      <div class="text-gray-700 mb-1 text-sm">
+        Anonymous Author(s)
+      </div>
+      <div class="text-gray-500 text-[11px] mb-7">
+        Submission &nbsp;&middot;&nbsp; ACM Symposium on User Interface Software and Technology (UIST&nbsp;&rsquo;26)
+      </div>
+
+      <div class="flex flex-wrap items-center justify-center gap-2">
+        <a href="uist26a-sub1390-i7.pdf" target="_blank" rel="noopener"
+           class="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-gray-900 text-white text-[13px] font-medium hover:bg-gray-800 transition">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
+          Paper
+        </a>
+        <a href="https://github.com/cosjiimos/CogChat" target="_blank" rel="noopener"
+           class="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white border border-gray-300 text-gray-800 text-[13px] font-medium hover:border-gray-900 hover:text-gray-900 transition">
+          <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24"><path d="M12 .5C5.65.5.5 5.65.5 12c0 5.08 3.29 9.39 7.86 10.91.58.11.79-.25.79-.56v-1.97c-3.2.7-3.87-1.54-3.87-1.54-.52-1.32-1.27-1.67-1.27-1.67-1.04-.71.08-.7.08-.7 1.15.08 1.76 1.18 1.76 1.18 1.02 1.76 2.69 1.25 3.35.96.1-.74.4-1.25.72-1.54-2.55-.29-5.24-1.28-5.24-5.7 0-1.26.45-2.29 1.18-3.1-.12-.29-.51-1.46.11-3.04 0 0 .97-.31 3.18 1.18.92-.26 1.91-.39 2.89-.39.98 0 1.97.13 2.89.39 2.21-1.49 3.18-1.18 3.18-1.18.62 1.58.23 2.75.11 3.04.74.81 1.18 1.84 1.18 3.1 0 4.43-2.69 5.41-5.25 5.69.41.36.78 1.07.78 2.16v3.2c0 .31.21.68.79.56 4.57-1.52 7.86-5.83 7.86-10.91C23.5 5.65 18.35.5 12 .5z"/></svg>
+          Code
+        </a>
+      </div>
+    </div>
+  </header>
+
+  <!-- ============================== TL;DR ============================== -->
+  <section id="tldr" class="section-anchor max-w-5xl mx-auto px-6 py-12">
+    <div class="max-w-3xl mb-8">
+      <p class="text-[10px] uppercase tracking-widest text-accent-700 font-semibold mb-2">TL;DR</p>
+      <h2 class="text-2xl md:text-3xl font-bold text-gray-900 leading-snug mb-4">
+        We ground conversational AI in <em>how a designer organizes knowledge</em> &mdash; not just what they said most recently.
+      </h2>
+      <p class="text-gray-600 text-[15px] leading-relaxed">
+        LLM chat systems keep context through <b>recency</b>: the last few turns in a sliding window. In design conversation this breaks down &mdash; relational meaning decays between turns (&ldquo;warm&rdquo; was tactile grain, not color), identical words mean different things to different designers, and the conversation loops instead of deepening. <b class="text-accent-700">CogChat</b> builds a personal <b>heterogeneous knowledge graph</b> from each designer&rsquo;s input and uses a <b>Heterogeneous Graph Transformer (HGT)</b> to select the structurally relevant nodes for every response &mdash; and to ask <em>probing questions</em> that surface what the designer hasn&rsquo;t yet articulated.
+      </p>
+    </div>
+    <figure>
+      <img src="assets/img/fig_1.png" alt="CogChat overview: in-context knowledge lookup, probing questions across turns, and the cognitive knowledge graph." class="w-full block rounded-xl border border-gray-200 zoomable" />
+      <figcaption class="mt-2 text-gray-500 text-[11px] leading-relaxed text-center">
+        <b>Figure 1.</b> (a) Chat interaction with in-context knowledge lookup &middot; (b) Probing questions with suggested answers, progressively refined across turns &middot; (c) The cognitive knowledge graph built from designer input.
+      </figcaption>
+    </figure>
+  </section>
+
+  <!-- ============================== PROBLEM ============================== -->
+  <section id="problem" class="section-anchor bg-gray-50 border-y border-gray-100">
+    <div class="max-w-5xl mx-auto px-6 py-14">
+      <p class="text-[10px] uppercase tracking-widest text-accent-700 font-semibold mb-2">The problem</p>
+      <h2 class="text-2xl md:text-3xl font-bold text-gray-900 leading-tight mb-2">
+        Recency-based context loses the <em>relations</em> that design reasoning runs on.
+      </h2>
+      <p class="text-gray-500 text-[15px] mb-9 max-w-2xl">Even with the full history in the context window, the system has memory without structure. Three failures compound.</p>
+
+      <div class="grid md:grid-cols-3 gap-4">
+        <div class="bg-white border border-gray-200 rounded-xl p-5">
+          <div class="w-9 h-9 rounded-lg bg-rose-100 text-rose-700 flex items-center justify-center font-bold mb-3">1</div>
+          <h3 class="font-semibold text-gray-900 mb-1.5">Information loss</h3>
+          <p class="text-[13px] text-gray-600 leading-relaxed">Relational context decays between turns. The system forgets that <em>&ldquo;warm&rdquo;</em> referred to tactile grain, not color temperature &mdash; the situated meaning central to design.</p>
+        </div>
+        <div class="bg-white border border-gray-200 rounded-xl p-5">
+          <div class="w-9 h-9 rounded-lg bg-amber-100 text-amber-700 flex items-center justify-center font-bold mb-3">2</div>
+          <h3 class="font-semibold text-gray-900 mb-1.5">Personalization failure</h3>
+          <p class="text-[13px] text-gray-600 leading-relaxed">Identical words carry different meanings across designers &mdash; <em>&ldquo;heavy&rdquo;</em> as visual density vs. information overload &mdash; but the system processes only generic semantics.</p>
+        </div>
+        <div class="bg-white border border-gray-200 rounded-xl p-5">
+          <div class="w-9 h-9 rounded-lg bg-sage-100 text-sage-700 flex items-center justify-center font-bold mb-3">3</div>
+          <h3 class="font-semibold text-gray-900 mb-1.5">Inefficiency</h3>
+          <p class="text-[13px] text-gray-600 leading-relaxed">Without retained context or resolved meaning, designers re-explain established ground. The conversation loops and restarts rather than deepening.</p>
+        </div>
+      </div>
+
+      <p class="text-[13px] text-gray-600 leading-relaxed mt-8 max-w-3xl">
+        These aren&rsquo;t independent bugs &mdash; they&rsquo;re symptoms of one absence: <b>no persistent, structured representation of the designer&rsquo;s cognitive space.</b> Design cognition is heterogeneous: perceptual, semantic, and functional elements coexist in a single judgment. Flattening that into a token sequence is what fails.
+      </p>
+    </div>
+  </section>
+
+  <!-- ============================== INTERFACE ============================== -->
+  <section id="interface" class="section-anchor max-w-6xl mx-auto px-6 py-14">
+    <p class="text-[10px] uppercase tracking-widest text-accent-700 font-semibold mb-2">The interface</p>
+    <h2 class="text-2xl md:text-3xl font-bold text-gray-900 mb-2">One workspace: conversation, knowledge inspection, and probing.</h2>
+    <p class="text-gray-500 text-[15px] mb-8 max-w-2xl">Every message builds on the accumulated relational context. Hover an underlined entity below to inspect its place in the knowledge graph.</p>
+
+    <div class="grid md:grid-cols-12 gap-6 items-start">
+      <!-- LEFT: live mini-chat with hoverable entities -->
+      <div class="md:col-span-7 bg-gray-50 border border-gray-200 rounded-2xl p-5 space-y-3" id="entity-demo">
+        <div class="flex justify-end">
+          <div class="bg-accent-600 text-white rounded-2xl rounded-tr-md px-3.5 py-2 text-[14px] leading-snug max-w-[85%]">
+            I want to design an eco-friendly camping gear brand.
+          </div>
+        </div>
+        <div class="flex items-start gap-2">
+          <div class="flex-shrink-0 w-7 h-7 rounded-full bg-accent-100 flex items-center justify-center text-[12px]">◑</div>
+          <div class="bg-white border border-gray-200 rounded-2xl rounded-tl-md px-3.5 py-2 text-[14px] leading-relaxed text-gray-800 max-w-[90%]">
+            I&rsquo;ll update your logo by softening the
+            <span class="entity" data-entity="recycling-icon">recycling icon</span>,
+            keeping the
+            <span class="entity" data-entity="sun-motif">sun motif</span>,
+            adding a woven
+            <span class="entity" data-entity="fabric-texture">fabric texture</span>,
+            and using layered
+            <span class="entity" data-entity="mountains">mountains</span>
+            with a warm taupe tone &mdash; aiming for a modern, earthy look.
+          </div>
+        </div>
+        <p class="text-[11px] text-gray-400 italic pt-1">Hover a dashed entity &rarr; its typed connections appear at right.</p>
+      </div>
+
+      <!-- RIGHT: inspection panel -->
+      <div class="md:col-span-5">
+        <div class="sticky top-20 bg-white border border-accent-200 rounded-2xl p-5 shadow-sm inspect-panel" id="inspect-panel">
+          <div class="flex items-center justify-between mb-1">
+            <h3 class="font-bold text-accent-700 text-lg uppercase tracking-tight" id="inspect-title">Recycling Icon</h3>
+            <span class="text-[11px] text-gray-400" id="inspect-count">4 connections</span>
+          </div>
+          <p class="text-[11px] text-gray-400 mb-3" id="inspect-hint">In-context entity inspection</p>
+          <ul class="space-y-2 text-[14px]" id="inspect-list"></ul>
+        </div>
+      </div>
+    </div>
+
+    <!-- Annotated full interface figure -->
+    <figure class="mt-10">
+      <img src="assets/img/fig_2.png" alt="The CogChat interface, annotated: knowledge graph overview, in-context entity inspection, chat input with image generation, and probing questions." class="w-full block rounded-xl border border-gray-200 zoomable" />
+      <figcaption class="mt-2 text-gray-500 text-[11px] leading-relaxed text-center">
+        <b>Figure 2.</b> (a) Knowledge graph overview &middot; (b) In-context entity inspection &middot; (c) Chat input with image generation &middot; (d) Intentional &amp; exploratory probing questions with suggested answers.
+      </figcaption>
+    </figure>
+  </section>
+
+  <!-- ============================== PIPELINE ============================== -->
+  <section id="pipeline" class="section-anchor bg-gray-50 border-y border-gray-100">
+    <div class="max-w-6xl mx-auto px-6 py-14">
+      <p class="text-[10px] uppercase tracking-widest text-accent-700 font-semibold mb-2">The pipeline</p>
+      <h2 class="text-2xl md:text-3xl font-bold text-gray-900 mb-2">Five stages, re-run at every turn.</h2>
+      <p class="text-gray-500 text-[15px] mb-8 max-w-2xl">The graph and the HGT retrain incrementally each turn, so the embedding space tracks the designer&rsquo;s evolving conceptual structure rather than a frozen snapshot.</p>
+
+      <div class="grid md:grid-cols-5 gap-4 mb-8">
+        <div class="stage-card bg-white border border-gray-200 rounded-xl p-4">
+          <div class="text-[11px] font-mono text-accent-600 mb-2">stage 01</div>
+          <h3 class="font-semibold text-gray-900 text-[15px] mb-1.5">KG Construction</h3>
+          <p class="text-[12.5px] text-gray-600 leading-snug">Extract typed entities &amp; directed relations from each utterance + response into a design-oriented ontology (<span class="font-mono text-[11px]">concept, material, property, design_element, action</span>).</p>
+        </div>
+        <div class="stage-card bg-white border border-gray-200 rounded-xl p-4">
+          <div class="text-[11px] font-mono text-accent-600 mb-2">stage 02</div>
+          <h3 class="font-semibold text-gray-900 text-[15px] mb-1.5">Link Set Creation</h3>
+          <p class="text-[12.5px] text-gray-600 leading-snug">Build positive links (co-occurring, positively-rated pairs) and hard + random negatives, then sample compact 2-hop subgraphs.</p>
+        </div>
+        <div class="stage-card bg-white border border-gray-200 rounded-xl p-4">
+          <div class="text-[11px] font-mono text-accent-600 mb-2">stage 03</div>
+          <h3 class="font-semibold text-gray-900 text-[15px] mb-1.5">HGT Embedding</h3>
+          <p class="text-[12.5px] text-gray-600 leading-snug">A Heterogeneous Graph Transformer with type-specific projections (3 layers &times; 8 heads, 512&rarr;256-d) retrains each turn on a BCE + ranking loss.</p>
+        </div>
+        <div class="stage-card bg-white border border-gray-200 rounded-xl p-4">
+          <div class="text-[11px] font-mono text-accent-600 mb-2">stage 04</div>
+          <h3 class="font-semibold text-gray-900 text-[15px] mb-1.5">Grounded Response</h3>
+          <p class="text-[12.5px] text-gray-600 leading-snug">Rank nodes by embedding similarity to the current message; inject only the top relevant subgraph into the LLM, tracking a topic-continuity score.</p>
+        </div>
+        <div class="stage-card bg-white border border-gray-200 rounded-xl p-4">
+          <div class="text-[11px] font-mono text-accent-600 mb-2">stage 05</div>
+          <h3 class="font-semibold text-gray-900 text-[15px] mb-1.5">Probing Questions</h3>
+          <p class="text-[12.5px] text-gray-600 leading-snug">Partition nodes into <em>intentional</em> (relevant but underspecified) and <em>exploratory</em> (connected but undiscussed) to generate questions. Answers feed back into extraction.</p>
+        </div>
+      </div>
+
+      <figure>
+        <img src="assets/img/fig_3.png" alt="The CogChat technical pipeline: knowledge graph construction, link-set creation and subgraph sampling, HGT embedding, context-grounded response generation, and probing question generation." class="w-full block rounded-xl border border-gray-200 bg-white zoomable" />
+        <figcaption class="mt-2 text-gray-500 text-[11px] leading-relaxed text-center">
+          <b>Figure 3.</b> The technical pipeline. (a) Entity/relation extraction &middot; (b) Positive/negative link sets + subgraph sampling &middot; (c) HGT embedding with type-specific projections &middot; (d) Embedding-based ranking + context injection &middot; (e) Intentional/exploratory probing, feeding back into extraction.
+        </figcaption>
+      </figure>
+    </div>
+  </section>
+
+  <!-- ============================== PROBING ============================== -->
+  <section id="probing" class="section-anchor max-w-5xl mx-auto px-6 py-14">
+    <p class="text-[10px] uppercase tracking-widest text-accent-700 font-semibold mb-2">Probing questions</p>
+    <h2 class="text-2xl md:text-3xl font-bold text-gray-900 mb-2">Two kinds of question, derived from the graph&rsquo;s structure.</h2>
+    <p class="text-gray-500 text-[15px] mb-8 max-w-2xl">A node&rsquo;s normalized relevance score <span class="font-mono text-[13px]">ŝ(v)</span> decides which kind it produces. Pick an answer below &mdash; it would feed back into the next turn&rsquo;s extraction.</p>
+
+    <div class="grid md:grid-cols-2 gap-5">
+      <!-- Intentional -->
+      <div class="border border-accent-200 bg-accent-50/50 rounded-2xl p-5">
+        <div class="flex items-center gap-2 mb-1">
+          <span class="text-accent-600">🎯</span>
+          <h3 class="font-bold text-accent-800">Intentional</h3>
+          <span class="ml-auto font-mono text-[11px] text-gray-500">ŝ(v) ≥ μ + σ</span>
+        </div>
+        <p class="text-[12.5px] text-gray-600 mb-4">Highly relevant but underspecified concepts &mdash; the system pins down what the designer already cares about.</p>
+        <div class="bg-white border border-gray-200 rounded-xl p-3.5 probe-group">
+          <p class="text-[13.5px] text-gray-800 mb-3">What specific earthy tone should be the primary color in the logo to emphasize its eco-friendly nature?</p>
+          <div class="flex flex-wrap gap-2">
+            <button class="probe-pill text-[12.5px] px-3 py-1 rounded-full border border-gray-300 bg-white">Terracotta</button>
+            <button class="probe-pill text-[12.5px] px-3 py-1 rounded-full border border-gray-300 bg-white">Olive</button>
+            <button class="probe-pill text-[12.5px] px-3 py-1 rounded-full border border-gray-300 bg-white">Sand</button>
+            <button class="probe-pill text-[12.5px] px-3 py-1 rounded-full border border-dashed border-gray-300 bg-gray-50 text-gray-400">Or type your own answer</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Exploratory -->
+      <div class="border border-sage-300 bg-sage-100/40 rounded-2xl p-5">
+        <div class="flex items-center gap-2 mb-1">
+          <span class="text-sage-700">🚀</span>
+          <h3 class="font-bold text-sage-700">Exploratory</h3>
+          <span class="ml-auto font-mono text-[11px] text-gray-500">μ − σ ≤ ŝ(v) &lt; μ + σ</span>
+        </div>
+        <p class="text-[12.5px] text-gray-600 mb-4">Connected but undiscussed concepts &mdash; the graph topology surfaces adjacent territory the designer hasn&rsquo;t mentioned yet.</p>
+        <div class="bg-white border border-gray-200 rounded-xl p-3.5 probe-group">
+          <p class="text-[13.5px] text-gray-800 mb-3">What specific eco-friendly materials would you like to incorporate into the logo symbol?</p>
+          <div class="flex flex-wrap gap-2">
+            <button class="probe-pill text-[12.5px] px-3 py-1 rounded-full border border-gray-300 bg-white">Matte</button>
+            <button class="probe-pill text-[12.5px] px-3 py-1 rounded-full border border-gray-300 bg-white">Textured</button>
+            <button class="probe-pill text-[12.5px] px-3 py-1 rounded-full border border-gray-300 bg-white">Polished</button>
+            <button class="probe-pill text-[12.5px] px-3 py-1 rounded-full border border-dashed border-gray-300 bg-gray-50 text-gray-400">Or type your own answer</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <figure class="mt-10">
+      <img src="assets/img/fig_7.png" alt="A CogChat conversation excerpt showing probing questions across turns and the cognitive knowledge graph visualization growing from turn 3 to turn 5." class="w-full block rounded-xl border border-gray-200 bg-white zoomable" />
+      <figcaption class="mt-2 text-gray-500 text-[11px] leading-relaxed text-center">
+        <b>Figure 7.</b> A real session (P4): probing questions accumulate context across turns, and the cognitive knowledge graph visibly densifies from turn 3 (b1) to turn 5 (b2).
+      </figcaption>
+    </figure>
+  </section>
+
+  <!-- ============================== RESULTS ============================== -->
+  <section id="results" class="section-anchor bg-gray-50 border-y border-gray-100">
+    <div class="max-w-6xl mx-auto px-6 py-14">
+      <p class="text-[10px] uppercase tracking-widest text-accent-700 font-semibold mb-2">Technical evaluation</p>
+      <h2 class="text-2xl md:text-3xl font-bold text-gray-900 mb-2">Selective HGT grounding beats both no grounding and naïve KG injection.</h2>
+      <p class="text-gray-500 text-[15px] mb-8 max-w-3xl">All conditions share the same base LLM. <b class="text-accent-700">KG+HGT</b> filters to structurally relevant context; <b>KG-only</b> dumps the whole graph and introduces noise that compounds errors on ambiguous queries.</p>
+
+      <!-- Table 1 -->
+      <div class="overflow-x-auto rounded-xl border border-gray-200 bg-white mb-4">
+        <table class="w-full text-[13.5px]">
+          <thead>
+            <tr class="border-b border-gray-200 text-gray-500">
+              <th class="text-left font-medium px-4 py-3">Metric</th>
+              <th class="text-right font-medium px-4 py-3">Baseline</th>
+              <th class="text-right font-medium px-4 py-3">KG-only</th>
+              <th class="text-right font-medium px-4 py-3 text-accent-700">KG+HGT</th>
+            </tr>
+          </thead>
+          <tbody class="divide-y divide-gray-100 font-mono">
+            <tr><td class="px-4 py-2.5 font-sans">ASQA &middot; QA-Hit</td><td class="px-4 py-2.5 text-right text-gray-500">73.3</td><td class="px-4 py-2.5 text-right text-gray-500">81.7</td><td class="px-4 py-2.5 text-right font-semibold text-accent-700">83.3</td></tr>
+            <tr><td class="px-4 py-2.5 font-sans">RewardBench &middot; Chat</td><td class="px-4 py-2.5 text-right text-gray-500">72.5</td><td class="px-4 py-2.5 text-right text-gray-500">81.2</td><td class="px-4 py-2.5 text-right font-semibold text-accent-700">91.3</td></tr>
+            <tr><td class="px-4 py-2.5 font-sans">RewardBench &middot; Chat Hard</td><td class="px-4 py-2.5 text-right text-gray-500">58.3</td><td class="px-4 py-2.5 text-right text-gray-500">65.7</td><td class="px-4 py-2.5 text-right font-semibold text-accent-700">82.4</td></tr>
+            <tr><td class="px-4 py-2.5 font-sans">RewardBench &middot; Safety</td><td class="px-4 py-2.5 text-right text-gray-500">68.2</td><td class="px-4 py-2.5 text-right text-gray-500">79.8</td><td class="px-4 py-2.5 text-right font-semibold text-accent-700">93.6</td></tr>
+            <tr><td class="px-4 py-2.5 font-sans">RewardBench &middot; Reasoning</td><td class="px-4 py-2.5 text-right text-gray-500">52.8</td><td class="px-4 py-2.5 text-right text-gray-500">71.3</td><td class="px-4 py-2.5 text-right font-semibold text-accent-700">87.9</td></tr>
+            <tr class="bg-accent-50/40"><td class="px-4 py-2.5 font-sans font-semibold">Average</td><td class="px-4 py-2.5 text-right text-gray-600">0.630</td><td class="px-4 py-2.5 text-right text-gray-600">0.745</td><td class="px-4 py-2.5 text-right font-bold text-accent-700">0.831</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p class="text-[12px] text-gray-500 mb-9">The largest gains appear where relational structure matters most: <b>Chat Hard (+24.1 over Baseline)</b> and <b>Reasoning (+35.1)</b>. Gains scale with task ambiguity.</p>
+
+      <figure>
+        <img src="assets/img/fig_5.png" alt="Eight bar charts comparing Baseline, KG-only, and CogChat on CUQ, BERTScore, Token IoU, probing success rate, task completion time, turn count, and feedback counts." class="w-full block rounded-xl border border-gray-200 bg-white zoomable" />
+        <figcaption class="mt-2 text-gray-500 text-[11px] leading-relaxed text-center">
+          <b>Figure 5.</b> Per-metric study outcomes. CogChat leads on CUQ, semantic similarity, token-level IoU, and probing success rate, while requiring fewer turns, less time, and drawing far less negative feedback. (* p&lt;.05, ** p&lt;.01, *** p&lt;.001)
+        </figcaption>
+      </figure>
+    </div>
+  </section>
+
+  <!-- ============================== USER STUDY ============================== -->
+  <section id="study" class="section-anchor max-w-6xl mx-auto px-6 py-14">
+    <p class="text-[10px] uppercase tracking-widest text-accent-700 font-semibold mb-2">User study</p>
+    <h2 class="text-2xl md:text-3xl font-bold text-gray-900 mb-2">Nine professional designers, three conditions, within-subjects.</h2>
+    <p class="text-gray-500 text-[15px] mb-8 max-w-3xl">Designers from graphic, interior/furniture, spatial, exhibition/branding, product, and architecture practice (M = 4.78 yrs experience) compared <b>Baseline</b>, <b>KG-only</b>, and <b>CogChat</b> across three research questions.</p>
+
+    <div class="grid md:grid-cols-3 gap-5 mb-10">
+      <div class="border border-gray-200 rounded-xl p-5">
+        <div class="text-[11px] font-mono text-accent-600 mb-2">RQ1 &middot; Context retention</div>
+        <p class="text-[13.5px] text-gray-700 leading-relaxed mb-3">CogChat reached a satisfactory outcome in <b>5.1 turns</b> vs. <b>9.4</b> for Baseline (&minus;45.9%), in a <b>single session</b> instead of 2.1. Higher per-turn BERTScore and nearly double the token-level IoU show HGT reuses the designer&rsquo;s own vocabulary.</p>
+        <div class="text-[12px] text-gray-500">Negative feedback: <b class="text-gray-800">0.22</b> vs. <b>3.67</b> (Baseline)</div>
+      </div>
+      <div class="border border-gray-200 rounded-xl p-5">
+        <div class="text-[11px] font-mono text-accent-600 mb-2">RQ2 &middot; Personalized interpretation</div>
+        <p class="text-[13.5px] text-gray-700 leading-relaxed mb-3">Chatbot Usability (CUQ) differed significantly across all three: <b>77.8</b> (CogChat) &gt; <b>64.9</b> (KG-only) &gt; <b>46.7</b> (Baseline). Probing success rate reached <b>70%</b> vs. 17% for Baseline.</p>
+        <div class="text-[12px] text-gray-500">Retaining entities isn&rsquo;t enough &mdash; structuring their <em>relations</em> is what helps.</div>
+      </div>
+      <div class="border border-gray-200 rounded-xl p-5">
+        <div class="text-[11px] font-mono text-accent-600 mb-2">RQ3 &middot; Cognitive effort &amp; depth</div>
+        <p class="text-[13.5px] text-gray-700 leading-relaxed mb-3">Lower NASA-TLX mental demand, effort, and frustration under KG-grounded conditions. <b>8 of 9</b> participants identified CogChat as the deepest conversation, while feeling they retained directional initiative.</p>
+        <div class="text-[12px] text-gray-500">Amplifies the designer&rsquo;s reasoning rather than replacing it.</div>
+      </div>
+    </div>
+
+    <figure class="mb-12">
+      <img src="assets/img/fig_4.png" alt="Per-item survey results across NASA-TLX, intent expression, satisfaction, output quality, and agency/ownership scales for Baseline, KG-only, and CogChat." class="w-full block rounded-xl border border-gray-200 bg-white zoomable" />
+      <figcaption class="mt-2 text-gray-500 text-[11px] leading-relaxed text-center">
+        <b>Figure 4.</b> Per-item survey responses across NASA-TLX, intent expression, satisfaction, output quality, and agency &amp; ownership. CogChat (purple) leads consistently, with the sharpest gaps on intent expression and outcome quality.
+      </figcaption>
+    </figure>
+
+    <figure>
+      <img src="assets/img/fig_6.png" alt="Timeline of all three conditions showing user messages, system responses, image generations, probing questions, and answered/presented probing success rates per turn." class="w-full block rounded-xl border border-gray-200 bg-white zoomable" />
+      <figcaption class="mt-2 text-gray-500 text-[11px] leading-relaxed text-center">
+        <b>Figure 6.</b> Full session timelines per condition. CogChat reaches a finished design in fewer turns with a high answered/presented probing ratio, while Baseline loops and restarts.
+      </figcaption>
+    </figure>
+  </section>
+
+  <!-- ============================== CITATION ============================== -->
+  <section id="cite" class="section-anchor bg-gray-50 border-t border-gray-100">
+    <div class="max-w-5xl mx-auto px-6 py-12">
+      <p class="text-[10px] uppercase tracking-widest text-accent-700 font-semibold mb-3">BibTeX</p>
+      <pre class="bg-gray-900 text-gray-100 rounded-xl p-5 overflow-x-auto text-[12.5px] leading-relaxed"><code>@inproceedings{cogchat2026,
+  title     = {CogChat: Knowledge Graph-Augmented Conversational AI with
+               Heterogeneous Graph Transformer for Cognitive Grounding in
+               Design Generation},
+  author    = {Anonymous Author(s)},
+  booktitle = {Proceedings of the ACM Symposium on User Interface
+               Software and Technology (UIST '26)},
+  year      = {2026},
+  publisher = {ACM},
+}</code></pre>
+    </div>
+  </section>
+
+  <!-- ============================== FOOTER ============================== -->
+  <footer class="border-t border-gray-100">
+    <div class="max-w-5xl mx-auto px-6 py-8 flex flex-col md:flex-row items-center justify-between gap-3 text-[12.5px] text-gray-500">
+      <span class="flex items-center gap-1.5"><span class="text-accent-600">◑</span> CogChat &middot; UIST 2026</span>
+      <a href="https://github.com/cosjiimos/CogChat" target="_blank" rel="noopener" class="hover:text-gray-900">github.com/cosjiimos/CogChat</a>
+    </div>
+  </footer>
+
+  <!-- ============================== LIGHTBOX ============================== -->
+  <div id="lightbox" class="fixed inset-0 z-[100] bg-black/80 hidden items-center justify-center p-6 cursor-zoom-out">
+    <img id="lightbox-img" src="" alt="" class="max-w-full max-h-full rounded-lg shadow-2xl" />
+  </div>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', function () {
+
+      // ====== In-context entity inspection ======
+      var ENTITIES = {
+        'recycling-icon': { title: 'Recycling Icon', count: '4 connections', rels: [
+          ['answered by', 'Brand Logo'], ['enhances', 'Sustainability'], ['is', 'Bold'], ['includes', 'Sun Motif'] ] },
+        'sun-motif': { title: 'Sun Motif', count: '3 connections', rels: [
+          ['evokes', 'Warmth'], ['part of', 'Recycling Icon'], ['conveys', 'Eco-Friendly Identity'] ] },
+        'fabric-texture': { title: 'Fabric Texture', count: '3 connections', rels: [
+          ['material of', 'Camping Gear'], ['feels', 'Cozy'], ['suggests', 'Local Wool'] ] },
+        'mountains': { title: 'Mountains', count: '4 connections', rels: [
+          ['part of', 'Logo Scene'], ['tone', 'Warm Taupe'], ['evokes', 'Outdoors'], ['layered with', 'Cotton Texture'] ] },
+      };
+      var panel  = document.getElementById('inspect-panel');
+      var tTitle = document.getElementById('inspect-title');
+      var tCount = document.getElementById('inspect-count');
+      var tList  = document.getElementById('inspect-list');
+
+      function renderEntity(key) {
+        var e = ENTITIES[key]; if (!e) return;
+        tTitle.textContent = e.title;
+        tCount.textContent = e.count;
+        tList.innerHTML = e.rels.map(function (r) {
+          return '<li class="flex items-center gap-2">' +
+            '<span class="text-gray-500 text-[13px] min-w-[88px]">' + r[0] + '</span>' +
+            '<span class="text-accent-600">&rarr;</span>' +
+            '<span class="text-accent-700 font-medium">' + r[1] + '</span></li>';
+        }).join('');
+      }
+      renderEntity('recycling-icon');
+
+      document.querySelectorAll('.entity').forEach(function (el) {
+        var key = el.getAttribute('data-entity');
+        function activate() {
+          document.querySelectorAll('.entity').forEach(function (x){ x.classList.remove('is-active'); });
+          el.classList.add('is-active');
+          renderEntity(key);
+          panel.style.opacity = '0'; panel.style.transform = 'translateY(4px)';
+          requestAnimationFrame(function(){ panel.style.opacity = '1'; panel.style.transform = 'translateY(0)'; });
+        }
+        el.addEventListener('mouseenter', activate);
+        el.addEventListener('focusin', activate);
+        el.setAttribute('tabindex', '0');
+      });
+
+      // ====== Probing pills: single-select per group ======
+      document.querySelectorAll('.probe-group').forEach(function (group) {
+        var pills = group.querySelectorAll('.probe-pill');
+        pills.forEach(function (p) {
+          if (p.classList.contains('border-dashed')) return;
+          p.addEventListener('click', function () {
+            pills.forEach(function (x){ x.classList.remove('is-chosen'); });
+            p.classList.add('is-chosen');
+          });
+        });
+      });
+
+      // ====== Figure lightbox ======
+      var lb = document.getElementById('lightbox');
+      var lbImg = document.getElementById('lightbox-img');
+      document.querySelectorAll('.zoomable').forEach(function (img) {
+        img.addEventListener('click', function () {
+          lbImg.src = img.src; lbImg.alt = img.alt;
+          lb.classList.remove('hidden'); lb.classList.add('flex');
+        });
+      });
+      lb.addEventListener('click', function () {
+        lb.classList.add('hidden'); lb.classList.remove('flex'); lbImg.src = '';
+      });
+      document.addEventListener('keydown', function (e) {
+        if (e.key === 'Escape' && !lb.classList.contains('hidden')) {
+          lb.classList.add('hidden'); lb.classList.remove('flex'); lbImg.src = '';
+        }
+      });
+    });
+  </script>
+</body>
+</html>
