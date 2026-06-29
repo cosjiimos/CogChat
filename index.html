@@ -99,7 +99,26 @@
         <a href="#results" class="hover:text-accent-700">Results</a>
         <a href="#study" class="hover:text-accent-700">User study</a>
       </div>
-      <a href="https://github.com/cosjiimos/CogChat" target="_blank" rel="noopener" class="text-gray-500 hover:text-gray-900" aria-label="GitHub">
+      <div class="flex items-center gap-3">
+        <!-- Related projects dropdown -->
+        <div class="relative" id="related-wrap">
+          <button id="related-btn" type="button" aria-expanded="false"
+            class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full border border-gray-200 bg-white hover:border-accent-300 hover:text-accent-700 transition text-[12.5px] font-medium">
+            Related projects
+            <svg class="w-3 h-3 transition-transform" id="related-caret" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M19 9l-7 7-7-7"/></svg>
+          </button>
+          <div id="related-menu" class="hidden absolute right-0 mt-2 w-64 bg-white border border-gray-200 rounded-xl shadow-lg p-1.5 z-50">
+            <a href="https://cosjiimos.github.io/GenPara3D/" target="_blank" rel="noopener"
+               class="block px-3 py-2.5 rounded-lg hover:bg-accent-50 transition group">
+              <div class="flex items-center justify-between">
+                <span class="font-semibold text-gray-900 text-[13px] group-hover:text-accent-700">GenPara3D</span>
+                <svg class="w-3.5 h-3.5 text-gray-300 group-hover:text-accent-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"/></svg>
+              </div>
+              <p class="text-[11.5px] text-gray-500 leading-snug mt-0.5">Generative parametric 3D project page</p>
+            </a>
+          </div>
+        </div>
+        <a href="https://github.com/cosjiimos/CogChat" target="_blank" rel="noopener" class="text-gray-500 hover:text-gray-900" aria-label="GitHub">
         <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24"><path d="M12 .5C5.65.5.5 5.65.5 12c0 5.08 3.29 9.39 7.86 10.91.58.11.79-.25.79-.56v-1.97c-3.2.7-3.87-1.54-3.87-1.54-.52-1.32-1.27-1.67-1.27-1.67-1.04-.71.08-.7.08-.7 1.15.08 1.76 1.18 1.76 1.18 1.02 1.76 2.69 1.25 3.35.96.1-.74.4-1.25.72-1.54-2.55-.29-5.24-1.28-5.24-5.7 0-1.26.45-2.29 1.18-3.1-.12-.29-.51-1.46.11-3.04 0 0 .97-.31 3.18 1.18.92-.26 1.91-.39 2.89-.39.98 0 1.97.13 2.89.39 2.21-1.49 3.18-1.18 3.18-1.18.62 1.58.23 2.75.11 3.04.74.81 1.18 1.84 1.18 3.1 0 4.43-2.69 5.41-5.25 5.69.41.36.78 1.07.78 2.16v3.2c0 .31.21.68.79.56 4.57-1.52 7.86-5.83 7.86-10.91C23.5 5.65 18.35.5 12 .5z"/></svg>
       </a>
     </div>
@@ -129,11 +148,18 @@
       </div>
 
       <div class="flex flex-wrap items-center justify-center gap-2">
-        <a href="uist26a-sub1390-i7.pdf" target="_blank" rel="noopener"
-           class="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-gray-900 text-white text-[13px] font-medium hover:bg-gray-800 transition">
+        <span aria-disabled="true" title="Coming soon"
+           class="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-gray-200 text-gray-400 text-[13px] font-medium cursor-not-allowed select-none">
           <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
           Paper
-        </a>
+          <span class="text-[10px] uppercase tracking-wide bg-gray-300 text-gray-500 rounded px-1.5 py-0.5">soon</span>
+        </span>
+        <span aria-disabled="true" title="Coming soon"
+           class="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-gray-200 text-gray-400 text-[13px] font-medium cursor-not-allowed select-none">
+          <svg class="w-4 h-4" viewBox="0 0 24 24" fill="currentColor"><path d="M3.5 3.5h17v17h-17z" fill="none"/><path d="M12 2 2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/></svg>
+          arXiv
+          <span class="text-[10px] uppercase tracking-wide bg-gray-300 text-gray-500 rounded px-1.5 py-0.5">soon</span>
+        </span>
         <a href="https://github.com/cosjiimos/CogChat" target="_blank" rel="noopener"
            class="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white border border-gray-300 text-gray-800 text-[13px] font-medium hover:border-gray-900 hover:text-gray-900 transition">
           <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24"><path d="M12 .5C5.65.5.5 5.65.5 12c0 5.08 3.29 9.39 7.86 10.91.58.11.79-.25.79-.56v-1.97c-3.2.7-3.87-1.54-3.87-1.54-.52-1.32-1.27-1.67-1.27-1.67-1.04-.71.08-.7.08-.7 1.15.08 1.76 1.18 1.76 1.18 1.02 1.76 2.69 1.25 3.35.96.1-.74.4-1.25.72-1.54-2.55-.29-5.24-1.28-5.24-5.7 0-1.26.45-2.29 1.18-3.1-.12-.29-.51-1.46.11-3.04 0 0 .97-.31 3.18 1.18.92-.26 1.91-.39 2.89-.39.98 0 1.97.13 2.89.39 2.21-1.49 3.18-1.18 3.18-1.18.62 1.58.23 2.75.11 3.04.74.81 1.18 1.84 1.18 3.1 0 4.43-2.69 5.41-5.25 5.69.41.36.78 1.07.78 2.16v3.2c0 .31.21.68.79.56 4.57-1.52 7.86-5.83 7.86-10.91C23.5 5.65 18.35.5 12 .5z"/></svg>
@@ -375,13 +401,6 @@
         </table>
       </div>
       <p class="text-[12px] text-gray-500 mb-9">The largest gains appear where relational structure matters most: <b>Chat Hard (+24.1 over Baseline)</b> and <b>Reasoning (+35.1)</b>. Gains scale with task ambiguity.</p>
-
-      <figure>
-        <img src="assets/img/fig_5.png" alt="Eight bar charts comparing Baseline, KG-only, and CogChat on CUQ, BERTScore, Token IoU, probing success rate, task completion time, turn count, and feedback counts." class="w-full block rounded-xl border border-gray-200 bg-white zoomable" />
-        <figcaption class="mt-2 text-gray-500 text-[11px] leading-relaxed text-center">
-          <b>Figure 5.</b> Per-metric study outcomes. CogChat leads on CUQ, semantic similarity, token-level IoU, and probing success rate, while requiring fewer turns, less time, and drawing far less negative feedback. (* p&lt;.05, ** p&lt;.01, *** p&lt;.001)
-        </figcaption>
-      </figure>
     </div>
   </section>
 
@@ -456,6 +475,31 @@
 
   <script>
     document.addEventListener('DOMContentLoaded', function () {
+
+      // ====== Related projects dropdown ======
+      var relBtn   = document.getElementById('related-btn');
+      var relMenu  = document.getElementById('related-menu');
+      var relCaret = document.getElementById('related-caret');
+      var relWrap  = document.getElementById('related-wrap');
+      if (relBtn && relMenu) {
+        function closeRel() {
+          relMenu.classList.add('hidden');
+          relBtn.setAttribute('aria-expanded', 'false');
+          relCaret.style.transform = '';
+        }
+        relBtn.addEventListener('click', function (e) {
+          e.stopPropagation();
+          var open = relMenu.classList.toggle('hidden') === false;
+          relBtn.setAttribute('aria-expanded', String(open));
+          relCaret.style.transform = open ? 'rotate(180deg)' : '';
+        });
+        document.addEventListener('click', function (e) {
+          if (!relWrap.contains(e.target)) closeRel();
+        });
+        document.addEventListener('keydown', function (e) {
+          if (e.key === 'Escape') closeRel();
+        });
+      }
 
       // ====== In-context entity inspection ======
       var ENTITIES = {
@@ -533,3 +577,4 @@
   </script>
 </body>
 </html>
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                  
