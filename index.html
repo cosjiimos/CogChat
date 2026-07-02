@@ -395,10 +395,19 @@
         <div class="bg-white border border-gray-200 rounded-xl p-3.5 probe-group">
           <p class="text-[13.5px] text-gray-800 mb-3">What specific earthy tone should be the primary color in the logo to emphasize its eco-friendly nature?</p>
           <div class="flex flex-wrap gap-2">
-            <button class="probe-pill text-[12.5px] px-3 py-1 rounded-full border border-gray-300 bg-white">Terracotta</button>
-            <button class="probe-pill text-[12.5px] px-3 py-1 rounded-full border border-gray-300 bg-white">Olive</button>
-            <button class="probe-pill text-[12.5px] px-3 py-1 rounded-full border border-gray-300 bg-white">Sand</button>
-            <button class="probe-pill text-[12.5px] px-3 py-1 rounded-full border border-dashed border-gray-300 bg-gray-50 text-gray-400">Or type your own answer</button>
+            <button class="probe-pill text-[12.5px] px-3 py-1 rounded-full border border-gray-300 bg-white" data-response="Locked in a warm terracotta primary. I&rsquo;ll rebuild the logo around it and carry the tone into the packaging palette.">Terracotta</button>
+            <button class="probe-pill text-[12.5px] px-3 py-1 rounded-full border border-gray-300 bg-white" data-response="Olive it is. I&rsquo;ll set a muted olive as the primary and pair it with a cream accent so the eco feel reads immediately.">Olive</button>
+            <button class="probe-pill text-[12.5px] px-3 py-1 rounded-full border border-gray-300 bg-white" data-response="Sand as the base. I&rsquo;ll keep the mark minimal on a sand field and reserve a darker earthy tone for the wordmark.">Sand</button>
+            <button class="probe-pill text-[12.5px] px-3 py-1 rounded-full border border-dashed border-gray-300 bg-gray-50 text-gray-400" disabled>Or type your own answer</button>
+          </div>
+          <div class="probe-response hidden mt-3 pt-3 border-t border-dashed border-accent-200">
+            <div class="flex items-start gap-2">
+              <div class="flex-shrink-0 w-6 h-6 rounded-full bg-accent-100 flex items-center justify-center text-[11px]">◑</div>
+              <div>
+                <div class="text-[10px] uppercase tracking-wider text-accent-600 font-semibold mb-0.5">Next turn &middot; graph updated</div>
+                <p class="text-[13px] text-gray-700 leading-snug probe-response-text"></p>
+              </div>
+            </div>
           </div>
         </div>
       </div>
@@ -414,10 +423,19 @@
         <div class="bg-white border border-gray-200 rounded-xl p-3.5 probe-group">
           <p class="text-[13.5px] text-gray-800 mb-3">What specific eco-friendly materials would you like to incorporate into the logo symbol?</p>
           <div class="flex flex-wrap gap-2">
-            <button class="probe-pill text-[12.5px] px-3 py-1 rounded-full border border-gray-300 bg-white">Matte</button>
-            <button class="probe-pill text-[12.5px] px-3 py-1 rounded-full border border-gray-300 bg-white">Textured</button>
-            <button class="probe-pill text-[12.5px] px-3 py-1 rounded-full border border-gray-300 bg-white">Polished</button>
-            <button class="probe-pill text-[12.5px] px-3 py-1 rounded-full border border-dashed border-gray-300 bg-gray-50 text-gray-400">Or type your own answer</button>
+            <button class="probe-pill text-[12.5px] px-3 py-1 rounded-full border border-gray-300 bg-white" data-response="Matte recycled paper &mdash; nice, that opens a new branch: I&rsquo;ll add a &lsquo;matte finish&rsquo; node linked to sustainability and suggest a stamped, ink-free mark.">Matte</button>
+            <button class="probe-pill text-[12.5px] px-3 py-1 rounded-full border border-gray-300 bg-white" data-response="A woven, textured feel &mdash; I&rsquo;ll connect this to the fabric-texture node you mentioned earlier and explore a hand-crafted, tactile logo treatment.">Textured</button>
+            <button class="probe-pill text-[12.5px] px-3 py-1 rounded-full border border-gray-300 bg-white" data-response="Polished recycled metal &mdash; interesting contrast with the earthy palette. I&rsquo;ll test a subtle metallic accent while keeping the overall look organic.">Polished</button>
+            <button class="probe-pill text-[12.5px] px-3 py-1 rounded-full border border-dashed border-gray-300 bg-gray-50 text-gray-400" disabled>Or type your own answer</button>
+          </div>
+          <div class="probe-response hidden mt-3 pt-3 border-t border-dashed border-sage-300">
+            <div class="flex items-start gap-2">
+              <div class="flex-shrink-0 w-6 h-6 rounded-full bg-sage-100 flex items-center justify-center text-[11px]">◑</div>
+              <div>
+                <div class="text-[10px] uppercase tracking-wider text-sage-700 font-semibold mb-0.5">Next turn &middot; new node discovered</div>
+                <p class="text-[13px] text-gray-700 leading-snug probe-response-text"></p>
+              </div>
+            </div>
           </div>
         </div>
       </div>
@@ -663,14 +681,20 @@
         el.setAttribute('tabindex', '0');
       });
 
-      // ====== Probing pills: single-select per group ======
+      // ====== Probing pills: single-select per group, reveal hard-coded response ======
       document.querySelectorAll('.probe-group').forEach(function (group) {
-        var pills = group.querySelectorAll('.probe-pill');
+        var pills    = group.querySelectorAll('.probe-pill');
+        var respWrap = group.querySelector('.probe-response');
+        var respText = group.querySelector('.probe-response-text');
         pills.forEach(function (p) {
-          if (p.classList.contains('border-dashed')) return;
+          if (p.disabled || !p.getAttribute('data-response')) return;
           p.addEventListener('click', function () {
             pills.forEach(function (x){ x.classList.remove('is-chosen'); });
             p.classList.add('is-chosen');
+            if (respWrap && respText) {
+              respText.innerHTML = p.getAttribute('data-response');
+              respWrap.classList.remove('hidden');
+            }
           });
         });
       });
