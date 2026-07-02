@@ -80,6 +80,38 @@
 
     /* Figure zoom-on-click cursor hint */
     .zoomable { cursor: zoom-in; }
+
+    /* Interactive playground: a distinct, self-evidently "try me" region. */
+    .interactive-zone {
+      position: relative;
+      background:
+        radial-gradient(120% 120% at 0% 0%, rgba(189,99,54,0.05), transparent 60%),
+        #fdfaf7;
+      border: 1.5px dashed rgb(224 167 132);
+      border-radius: 1.25rem;
+    }
+    .interactive-badge {
+      position: absolute;
+      top: -0.7rem;
+      left: 1.25rem;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.4rem;
+      padding: 0.2rem 0.7rem;
+      background: #a64f29;
+      color: #fff;
+      font-size: 10px;
+      font-weight: 600;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      border-radius: 9999px;
+      box-shadow: 0 4px 12px -4px rgba(110,52,32,0.5);
+    }
+    .interactive-badge .dot {
+      width: 6px; height: 6px; border-radius: 9999px; background: #fff;
+      animation: livepulse 1.8s ease-in-out infinite;
+    }
+    @keyframes livepulse { 0%,100% { opacity: 1; } 50% { opacity: 0.35; } }
   </style>
 </head>
 
@@ -149,6 +181,7 @@
         Knowledge Graph-Augmented Conversational AI for Cognitive Grounding in Design
       </p>
 
+      <!-- De-anonymized authors — restore once the paper is accepted / camera-ready.
       <div class="text-gray-700 mb-2 text-sm">
         <a href="https://cosjiimos.github.io/" target="_blank" rel="noopener" class="hover:text-accent-700 underline-offset-2 hover:underline">Jiin Choi</a><sup class="text-gray-400">1,2</sup>,
         <a href="https://designinformatics.hanyang.ac.kr/People_Kyung-Hoon-Hyun" target="_blank" rel="noopener" class="hover:text-accent-700 underline-offset-2 hover:underline">Kyung Hoon Hyun</a><sup class="text-gray-400">1,2,*</sup>
@@ -159,6 +192,13 @@
       </div>
       <div class="text-gray-400 text-[11px] mb-7">
         <sup>*</sup>Corresponding author &nbsp;&middot;&nbsp; ACM Symposium on User Interface Software and Technology (UIST&nbsp;&rsquo;26)
+      </div>
+      -->
+      <div class="text-gray-700 mb-2 text-sm">
+        Anonymous Author(s)
+      </div>
+      <div class="text-gray-400 text-[11px] mb-7">
+        Under review &nbsp;&middot;&nbsp; ACM Symposium on User Interface Software and Technology (UIST&nbsp;&rsquo;26)
       </div>
 
       <div class="flex flex-wrap items-center justify-center gap-2">
@@ -241,7 +281,9 @@
     <h2 class="text-2xl md:text-3xl font-bold text-gray-900 mb-2">One workspace: conversation, knowledge inspection, and probing.</h2>
     <p class="text-gray-500 text-[15px] mb-8 max-w-2xl">Every message builds on the accumulated relational context. Hover an underlined entity below to inspect its place in the knowledge graph.</p>
 
-    <div class="grid md:grid-cols-12 gap-6 items-start">
+    <div class="interactive-zone p-5 md:p-7 pt-8 md:pt-9">
+      <span class="interactive-badge"><span class="dot"></span> Try it &middot; hover an entity</span>
+      <div class="grid md:grid-cols-12 gap-6 items-start">
       <!-- LEFT: live mini-chat with hoverable entities -->
       <div class="md:col-span-7 bg-gray-50 border border-gray-200 rounded-2xl p-5 space-y-3" id="entity-demo">
         <div class="flex justify-end">
@@ -276,6 +318,7 @@
           <p class="text-[11px] text-gray-400 mb-3" id="inspect-hint">In-context entity inspection</p>
           <ul class="space-y-2 text-[14px]" id="inspect-list"></ul>
         </div>
+      </div>
       </div>
     </div>
 
@@ -338,9 +381,11 @@
     <h2 class="text-2xl md:text-3xl font-bold text-gray-900 mb-2">Two kinds of question, derived from the graph&rsquo;s structure.</h2>
     <p class="text-gray-500 text-[15px] mb-8 max-w-2xl">A node&rsquo;s normalized relevance score <span class="font-mono text-[13px]">ŝ(v)</span> decides which kind it produces. Pick an answer below &mdash; it would feed back into the next turn&rsquo;s extraction.</p>
 
-    <div class="grid md:grid-cols-2 gap-5">
+    <div class="interactive-zone p-5 md:p-7 pt-8 md:pt-9">
+      <span class="interactive-badge"><span class="dot"></span> Try it &middot; pick an answer</span>
+      <div class="grid md:grid-cols-2 gap-5">
       <!-- Intentional -->
-      <div class="border border-accent-200 bg-accent-50/50 rounded-2xl p-5">
+      <div class="border border-accent-200 bg-white rounded-2xl p-5">
         <div class="flex items-center gap-2 mb-1">
           <span class="text-accent-600">🎯</span>
           <h3 class="font-bold text-accent-800">Intentional</h3>
@@ -359,7 +404,7 @@
       </div>
 
       <!-- Exploratory -->
-      <div class="border border-sage-300 bg-sage-100/40 rounded-2xl p-5">
+      <div class="border border-sage-300 bg-white rounded-2xl p-5">
         <div class="flex items-center gap-2 mb-1">
           <span class="text-sage-700">🚀</span>
           <h3 class="font-bold text-sage-700">Exploratory</h3>
@@ -375,6 +420,7 @@
             <button class="probe-pill text-[12.5px] px-3 py-1 rounded-full border border-dashed border-gray-300 bg-gray-50 text-gray-400">Or type your own answer</button>
           </div>
         </div>
+      </div>
       </div>
     </div>
 
@@ -525,7 +571,7 @@
       <p class="text-[10px] uppercase tracking-widest text-accent-700 font-semibold mb-3">BibTeX</p>
       <pre class="bg-gray-900 text-gray-100 rounded-xl p-5 overflow-x-auto text-[12.5px] leading-relaxed"><code>@inproceedings{cogchat2026,
   title     = {CogChat: Knowledge Graph-Augmented Conversational AI with Heterogeneous Graph Transformer for Cognitive Grounding in Design Generation},
-  author    = {},
+  author    = {Anonymous Author(s)},
   booktitle = {},
   year      = {2026},
   publisher = {},
