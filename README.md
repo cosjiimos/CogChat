@@ -2,7 +2,7 @@
 
 **Knowledge Graph-Augmented Conversational AI with a Heterogeneous Graph Transformer for Cognitive Grounding in Design Generation**
 
-UIST '26 &middot; Jiin Choi, Kyung Hoon Hyun &middot; Design Informatics Lab, Hanyang University
+Anonymous Author(s) &middot; Under review
 
 ![CogChat overview](assets/img/fig_1.png)
 
