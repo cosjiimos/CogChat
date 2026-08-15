@@ -3,3 +3,6 @@ scratchpad/
 .DS_Store
 uist26a-sub1390-i7.pdf
 *.pdf
+
+# 4K master kept locally; the repo ships the 1080p web encode
+*_4k_original.mp4
