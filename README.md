@@ -8,7 +8,7 @@
 <sup>2</sup>Human-Centered AI Design Institute, Hanyang University, Seoul, Republic of Korea
 <sup>\*</sup>Corresponding author
 
-**ACM UIST 2026** &middot; [Paper (arXiv)](https://arxiv.org/abs/2608.13216) &middot; [DOI: 10.1145/3830398.3830724](https://doi.org/10.1145/3830398.3830724)
+**ACM UIST 2026**, Detroit, MI, USA &middot; to appear &middot; [arXiv:2608.13216](https://arxiv.org/abs/2608.13216)
 
 ![CogChat overview](assets/img/fig_1.png)
 
