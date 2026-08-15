@@ -2,9 +2,9 @@
 
 **Knowledge Graph-Augmented Conversational AI with a Heterogeneous Graph Transformer for Cognitive Grounding in Design Generation**
 
-[Jiin Choi](https://cosjiimos.github.io/)<sup>1,2</sup>, [Kyung Hoon Hyun](https://designai.hanyang.ac.kr/)<sup>1,2,\*</sup>
+[Jiin Choi](https://cosjiimos.github.io/)<sup>1,2</sup>, [Kyung Hoon Hyun](https://designai.hanyang.ac.kr/People_Kyung-Hoon-Hyun)<sup>1,2,\*</sup>
 
-<sup>1</sup>[Design AI Lab](https://designai.hanyang.ac.kr/), Interior Architecture Design, Hanyang University, Seoul, Republic of Korea
+<sup>1</sup>[Design AI Lab](https://designai.hanyang.ac.kr), Interior Architecture Design, Hanyang University, Seoul, Republic of Korea
 <sup>2</sup>Human-Centered AI Design Institute, Hanyang University, Seoul, Republic of Korea
 <sup>\*</sup>Corresponding author
 
